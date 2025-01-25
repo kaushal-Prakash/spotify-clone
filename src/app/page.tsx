@@ -1,4 +1,4 @@
-'use client';
+"use client";
 import Link from "next/link";
 import { useState } from "react";
 import { FaSpotify } from "react-icons/fa";
@@ -10,7 +10,7 @@ export default function Home() {
   const handlePopupClick = () => {
     setPopup(!popup);
     console.log(popup);
-  }
+  };
 
   return (
     <div className="min-h-screen bg-spotify-black text-white flex flex-col items-center justify-center px-6 relative">
@@ -21,18 +21,22 @@ export default function Home() {
           Experience Music Like Never Before
         </h1>
         <p className="text-lg text-spotify-light-gray mt-4">
-          Discover millions of songs, create playlists, and enjoy an immersive music experience with our Spotify Clone.
+          Discover millions of songs, create playlists, and enjoy an immersive
+          music experience with our Spotify Clone.
         </p>
 
         {/* Call to Action Buttons */}
         <div className="mt-6 flex gap-4 justify-center">
-          <button 
+          <button
             onClick={() => handlePopupClick()} // ✅ Open Popup
             className="bg-spotify-green text-black font-semibold px-6 py-3 rounded-full text-lg hover:bg-spotify-dark-green transition-all"
           >
             Get Started
           </button>
-          <Link href="About" className="border border-spotify-green text-spotify-green font-semibold px-6 py-3 rounded-full text-lg hover:bg-spotify-green hover:text-black transition-all">
+          <Link
+            href="About"
+            className="border border-spotify-green text-spotify-green font-semibold px-6 py-3 rounded-full text-lg hover:bg-spotify-green hover:text-black transition-all"
+          >
             Learn More
           </Link>
         </div>
@@ -50,21 +54,33 @@ export default function Home() {
               <IoClose />
             </button>
             <h2 className="text-2xl font-bold mb-4">Welcome!</h2>
-            <p className="text-spotify-light-gray mb-6">Choose an option to continue</p>
+            <p className="text-spotify-light-gray mb-6">
+              Choose an option to continue
+            </p>
+
+            {/* Login & Signup Buttons */}
             <div className="flex flex-col gap-4">
-              <Link 
+              <Link
                 href="/login"
                 className="bg-spotify-green text-black py-2 rounded-full font-semibold hover:bg-spotify-dark-green transition-all"
               >
                 Login
               </Link>
-              <Link 
+              <Link
                 href="/signup"
                 className="border border-spotify-green text-spotify-green py-2 rounded-full font-semibold hover:bg-spotify-green hover:text-black transition-all"
               >
                 Sign Up
               </Link>
             </div>
+
+            {/* Admin Login Link */}
+            <Link
+              href="/admin/login"
+              className="text-white mt-6 block text-sm hover:text-spotify-green transition-all"
+            >
+              Admin Login?
+            </Link>
           </div>
         </div>
       )}
