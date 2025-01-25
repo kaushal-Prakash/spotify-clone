@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-export interface Album{
+export interface Album extends Document{
     title: string;
     artist: string;
     coverImage:string;
@@ -31,4 +31,6 @@ const AlbumSchema = new mongoose.Schema<Album>({
     },
 });
 
-export default mongoose.model<Album>('Album',AlbumSchema);
+const AlbumModel = mongoose.models.Album || mongoose.model<Album>('Album',AlbumSchema);
+
+export default AlbumModel;

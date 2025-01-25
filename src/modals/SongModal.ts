@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-export interface Song {
+export interface Song extends Document{
     title : string;
     artist : string;
     album : mongoose.Types.ObjectId; //reference hai album ka
@@ -22,4 +22,6 @@ const Songschema = new mongoose.Schema<Song>({
     createdAt:{type:Date,default:Date.now},
 });
 
-export default mongoose.model<Song>('Song',Songschema);
+const SongModel = mongoose.models.Song || mongoose.model<Song>('Song',Songschema);
+
+export default SongModel;

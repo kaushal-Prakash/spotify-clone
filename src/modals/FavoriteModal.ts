@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-export interface Favorites{
+export interface Favorites extends Document{
     user: mongoose.Schema.Types.ObjectId;
     song: mongoose.Schema.Types.ObjectId;
 }
@@ -10,4 +10,6 @@ const FavoriteSchema = new mongoose.Schema<Favorites>({
     song: { type: mongoose.Schema.Types.ObjectId, ref: "Song", required: true },
 });
 
-export default mongoose.model<Favorites>("Favorite", FavoriteSchema);
+const FavoriteModel = mongoose.models.Favorite || mongoose.model<Favorites>("Favorite", FavoriteSchema);
+
+export default FavoriteModel;

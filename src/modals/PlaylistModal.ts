@@ -14,4 +14,6 @@ const PlaylistSchema = new Schema<Playlist>({
   createdAt: { type: Date, default: Date.now },
 });
 
-export default mongoose.model<Playlist>("Playlist", PlaylistSchema);
+const PlaylistModel = mongoose.models.Playlist || mongoose.model<Playlist>("Playlist", PlaylistSchema);
+
+export default PlaylistModel;
