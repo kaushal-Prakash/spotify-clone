@@ -31,8 +31,18 @@ export async function POST(req: NextRequest) {
     { expiresIn: "15d" }
   );
 
-  return NextResponse.json(
-    { message: "User login successful!", token },
-    { status: 200 }
-  );
+  const response = NextResponse.json({
+    message: "User loged in successfully",
+    success: true,
+  });
+
+  response.cookies.set("token", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production" && req.url.startsWith("https"),
+    sameSite: "strict",
+    path: "/",
+    maxAge: 60 * 60 * 24 * 15,
+  });
+
+  return response;
 }

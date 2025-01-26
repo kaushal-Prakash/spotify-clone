@@ -6,16 +6,16 @@ import { useState } from "react";
 
 export default function Signup() {
   const [form, setForm] = useState({ username: "", email: "", password: "" });
-    const router = useRouter();
   const handleChange = (e : React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
       await axios.post("/api/auth/user-login", form);
-      router.push('/home');
+      router.push("/home");
     } catch (err) {
       console.log(err);
     }

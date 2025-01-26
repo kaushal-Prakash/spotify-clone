@@ -76,7 +76,7 @@ export default function Home() {
 
             {/* Admin Login Link */}
             <Link
-              href="/admin/login"
+              href="/admin-login"
               className="text-white mt-6 block text-sm hover:text-spotify-green transition-all"
             >
               Admin Login?
