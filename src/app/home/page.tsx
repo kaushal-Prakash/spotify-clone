@@ -1,9 +1,13 @@
+import Navbar from '@/components/Navbar/Navbar'
 import React from 'react'
 
-function page() {
+function Home() {
   return (
-    <div>page</div>
+    <div className='min-h-screen bg-black'>
+      <Navbar/>
+      Home
+    </div>
   )
 }
 
-export default page
+export default Home
