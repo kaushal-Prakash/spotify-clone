@@ -5,8 +5,13 @@ import Image from "next/image";
 import { FaPause, FaPlay } from "react-icons/fa";
 import { BiShuffle } from "react-icons/bi";
 import { BsRepeat, BsSkipStartFill, BsSkipEndFill } from "react-icons/bs";
+import { Song } from "@/modals/SongModal";
 
-export default function NowPlaying({ song }) {
+interface NowPlayingProps {
+  song: Song | null; // Allow the possibility of no song selected
+}
+
+export default function NowPlaying({ song }: NowPlayingProps) {
   // State to manage playback status (play/pause)
   const [isPlaying, setIsPlaying] = useState(false);
   const [isShuffle, setIsShuffle] = useState(false);
@@ -31,14 +36,16 @@ export default function NowPlaying({ song }) {
     setIsRepeat(!isRepeat);
   };
 
-  if (!song) return <div>Select a song to play</div>;
+  if (!song) {
+    return <div className="text-center text-gray-400">Select a song to play</div>;
+  }
 
   return (
     <div className="bg-black text-white p-4 w-full md:w-1/4 flex flex-col justify-between">
       {/* Song Details */}
       <div className="flex items-center space-x-4">
         <Image
-          src={song.cover || "/song-cover.jpg"} // Default cover if song doesn't have one
+          src={"/song-cover.jpg"}
           width={60}
           height={60}
           alt="Song Cover"
@@ -62,11 +69,7 @@ export default function NowPlaying({ song }) {
           className="bg-white text-black p-2 rounded-full"
           onClick={handlePlayPause}
         >
-          {isPlaying ? (
-            <FaPause size={20} />
-          ) : (
-            <FaPlay size={20} />
-          )}
+          {isPlaying ? <FaPause size={20} /> : <FaPlay size={20} />}
         </button>
         <BsSkipEndFill size={24} className="cursor-pointer hover:text-white" />
         <BsRepeat
