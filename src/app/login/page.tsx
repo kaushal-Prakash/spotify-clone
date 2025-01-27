@@ -3,6 +3,7 @@ import axios from "axios";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "react-toastify";
 
 export default function Signup() {
   const [form, setForm] = useState({ username: "", email: "", password: "" });
@@ -14,7 +15,14 @@ export default function Signup() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      await axios.post("/api/auth/user-login", form);
+      const res = await axios.post("/api/auth/user-login", form);
+      console.log(res);
+      const { message, success } = res.data;
+      if(success){
+        toast.success(message);
+      }else{
+        toast.error(message);
+      }
       router.push("/home");
     } catch (err) {
       console.log(err);

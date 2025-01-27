@@ -10,6 +10,6 @@ export async function GET() {
     return response;
   } catch (error) {
     console.log(error);
-    return NextResponse.json({ message: "Error Logging out !" }, { status: 500 });
+    return NextResponse.json({ message: "Error Logging out !",success: false }, { status: 500 });
   }
 }

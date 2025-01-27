@@ -17,12 +17,12 @@ export async function POST(req: NextRequest) {
 
   const user = await UserModal.findOne({ email });
   if (!user) {
-    return NextResponse.json({ message: "User not found" }, { status: 404 });
+    return NextResponse.json({ message: "User not found",success: false }, { status: 404 });
   }
 
   const isValid = await bcrypt.compare(password, user.password);
   if (!isValid) {
-    return NextResponse.json({ message: "Invalid password" }, { status: 401 });
+    return NextResponse.json({ message: "Invalid password", success : false }, { status: 401 });
   }
 
   const token = jwt.sign(
@@ -31,10 +31,13 @@ export async function POST(req: NextRequest) {
     { expiresIn: "15d" }
   );
 
-  const response = NextResponse.json({
-    message: "User loged in successfully",
-    success: true,
-  });
+  const response = NextResponse.json(
+    {
+      message: "User logged in successfully",
+      success: true,
+    },
+    { status: 200 }
+  );
 
   response.cookies.set("token", token, {
     httpOnly: true,

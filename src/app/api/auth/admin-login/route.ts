@@ -18,18 +18,18 @@ export async function POST(req: NextRequest) {
     const admin = await Admin.findOne({ email });
     if (!admin) {
       console.log("Admin not found in database.");
-      return NextResponse.json({ message: "Admin not found" }, { status: 404 });
+      return NextResponse.json({ message: "Admin not found",success:false }, { status: 404 });
     }
   
     const isValid = await bcrypt.compare(password, admin.password);
     if (!isValid) {
       console.log("Invalid password.");
-      return NextResponse.json({ message: "Invalid password" }, { status: 401 });
+      return NextResponse.json({ message: "Invalid password",success:false }, { status: 401 });
     }
   
     if (!process.env.SECRET_KEY) {
       console.error("SECRET_KEY is missing in .env");
-      return NextResponse.json({ message: "Internal server error" }, { status: 500 });
+      return NextResponse.json({ message: "Internal server error",success:false }, { status: 500 });
     }
   
     const token = jwt.sign(

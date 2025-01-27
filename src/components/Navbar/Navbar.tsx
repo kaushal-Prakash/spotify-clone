@@ -7,6 +7,7 @@ import { BiLibrary } from "react-icons/bi";
 import { BsSearch } from "react-icons/bs";
 import Image from "next/image";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -25,8 +26,17 @@ export default function Navbar() {
   const handleLogout = async () => {
     try{
         const res = await axios.get("/api/auth/user-logout");
-        console.log(res.data);
-        window.location.href="/login";
+        console.log(res);
+        const {message,success} = res.data;
+        if(success){
+          toast.success(message);
+        }
+        else {
+          toast.error(message);
+        }
+        setTimeout(() => {
+          window.location.href = "/login"; 
+        }, 1500);
     }catch(err){
         console.log(err);
     }

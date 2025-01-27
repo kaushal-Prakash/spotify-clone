@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
   const { username, email, password } = await req.json();
   if (!username || !email || !password) {
     return NextResponse.json(
-      { message: "Please fill all the fields" },
+      { message: "Please fill all the fields",success:false },
       { status: 400 }
     );
   }
@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
     const existingUser = await UserModal.findOne({ email });
     if (existingUser) {
       return NextResponse.json(
-        { message: "User already exists" },
+        { message: "User already exists",success: false },
         { status: 400 }
       );
     }
@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error(error);
     return NextResponse.json(
-      { message: "Error creating user" },
+      { message: "Error creating user",success:false },
       { status: 500 }
     );
   }
