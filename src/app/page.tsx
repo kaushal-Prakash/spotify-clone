@@ -58,6 +58,7 @@ export default function Home() {
               Choose an option to continue
             </p>
 
+
             {/* Login & Signup Buttons */}
             <div className="flex flex-col gap-4">
               <Link

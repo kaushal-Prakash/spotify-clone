@@ -5,9 +5,11 @@ import { FaUserCircle } from "react-icons/fa";
 import { GoHome } from "react-icons/go";
 import { BiLibrary } from "react-icons/bi";
 import { BsSearch } from "react-icons/bs";
+import { CiMenuBurger } from "react-icons/ci";
 import Image from "next/image";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { AiOutlineClose } from "react-icons/ai";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -108,14 +110,13 @@ export default function Navbar() {
 
         {/* Mobile Menu Button */}
         <button className="md:hidden" onClick={() => setIsOpen(!isOpen)}>
-          {isOpen ? <GoHome size={24} /> : <BsSearch size={24} />} 
+          {isOpen ? <AiOutlineClose size={24} /> : <CiMenuBurger size={24} />} 
         </button>
       </div>
 
       {/* Mobile Navigation Menu */}
       {isOpen && (
-        <div className="md:hidden mt-3 space-y-3 text-center">
-          <NavItem href="/" icon={<GoHome size={20} />} label="Home" />
+        <div className="absolute h-fit w-fit bg-spotify-dark-gray p-4 rounded-lg right-5 top-12 md:hidden mt-3 space-y-3 text-center">
           <NavItem href="/search" icon={<BsSearch size={20} />} label="Search" />
           <NavItem href="/library" icon={<BiLibrary size={20} />} label="Library" />
           <NavItem href="/profile" icon={<FaUserCircle size={20} />} label="Profile" />
