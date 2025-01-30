@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 export interface Song extends Document{
     title : string;
     artist : string;
-    album : mongoose.Types.ObjectId; //reference hai album ka
+    album : mongoose.Types.ObjectId;
     genre : string;
     duration : number;
     coverImage : string;
