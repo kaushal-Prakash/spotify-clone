@@ -6,6 +6,7 @@ export interface User extends Document {
     email: string;
     password: string;
     favorites: mongoose.Types.ObjectId[];
+    uploads: mongoose.Types.ObjectId[];
     createdAt: Date;
 }
 
@@ -29,11 +30,16 @@ const UserSchema = new Schema<User>({
         type: mongoose.Types.ObjectId,
         ref: 'Song',
     }],
+    uploads: [{
+        type: mongoose.Types.ObjectId,
+        ref: 'Album',
+    }],
     createdAt: {
         type: Date,
         default: Date.now,
     },
 });
+
 
 const UserModel = mongoose.models.User || mongoose.model<User>('User', UserSchema);
 

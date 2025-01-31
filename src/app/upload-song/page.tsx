@@ -20,11 +20,35 @@ export default function UploadSong() {
       title: string;
       duration: number;
       audioFile: File | null;
-      coverImage: File | null;
+      SongCoverImage: File | null;
       artist: string;
     }[],
   });
 
+  // Handles changes for album cover
+  const handleAlbumCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { files } = e.target;
+    if (files && files.length > 0) {
+      setAlbumData((prev) => ({ ...prev, coverImage: files[0] }));
+    }
+  };
+
+  // Handles changes for individual song files (SongCoverImage & audioFile)
+  const handleSongFileChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    index: number
+  ) => {
+    const { name, files } = e.target;
+    if (files && files.length > 0) {
+      setAlbumData((prev) => {
+        const updatedSongs = [...prev.songs];
+        updatedSongs[index] = { ...updatedSongs[index], [name]: files[0] };
+        return { ...prev, songs: updatedSongs };
+      });
+    }
+  };
+
+  // Handles text input changes for album and song details
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -32,24 +56,7 @@ export default function UploadSong() {
     setAlbumData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleFileChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    index?: number
-  ) => {
-    const { name, files } = e.target;
-    if (files && files.length > 0) {
-      if (name === "coverImage") {
-        setAlbumData((prev) => ({ ...prev, coverImage: files[0] }));
-      } else if (index !== undefined) {
-        setAlbumData((prev) => {
-          const updatedSongs = [...prev.songs];
-          updatedSongs[index] = { ...updatedSongs[index], audioFile: files[0] };
-          return { ...prev, songs: updatedSongs };
-        });
-      }
-    }
-  };
-
+  // Handles text input changes for songs
   const handleSongChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
     index: number
@@ -62,6 +69,7 @@ export default function UploadSong() {
     });
   };
 
+  // Adds a new song input field
   const handleAddSong = () => {
     setAlbumData((prev) => ({
       ...prev,
@@ -69,56 +77,52 @@ export default function UploadSong() {
         ...prev.songs,
         {
           genre: "",
-          description: "",
           title: "",
           artist: "",
           audioFile: null,
-          coverImage: null,
+          SongCoverImage: null,
           duration: 0,
         },
       ],
     }));
   };
 
+  // Handles form submission
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
     const formDataToSend = new FormData();
     formDataToSend.append("title", albumData.title);
     formDataToSend.append("artist", albumData.artist);
     formDataToSend.append("album", albumData.album);
-    if (albumData.coverImage) {
-      formDataToSend.append("coverImage", albumData.coverImage);
-    }
 
-    if(albumData.songs.length < 1){
-      toast.info("Add songs first");
+    if (!albumData.coverImage) {
+      toast.error("Please upload an album cover.");
       return;
     }
+    formDataToSend.append("coverImage", albumData.coverImage);
+
+    if (albumData.songs.length < 1) {
+      toast.error("Please add at least one song.");
+      return;
+    }
+
     albumData.songs.forEach((song, index) => {
-      formDataToSend.append(`songs[${index}][genre]`, song.genre);
+      if (!song.SongCoverImage || !song.audioFile) {
+        toast.error(`Song ${index + 1} is missing cover image or audio file.`);
+        return;
+      }
+
       formDataToSend.append(`songs[${index}][title]`, song.title);
       formDataToSend.append(`songs[${index}][artist]`, song.artist);
-      formDataToSend.append(
-        `songs[${index}][duration]`,
-        song.duration.toString()
-      );
-      if (song.audioFile) {
-        formDataToSend.append(`songs[${index}][audioFile]`, song.audioFile);
-      }
-      if (song.coverImage) {
-        formDataToSend.append(`songs[${index}][coverImage]`, song.coverImage);
-      }
+      formDataToSend.append(`songs[${index}][genre]`, song.genre);
+      formDataToSend.append(`songs[${index}][duration]`, song.duration.toString());
+      formDataToSend.append(`songs[${index}][SongCoverImage]`, song.SongCoverImage);
+      formDataToSend.append(`songs[${index}][audioFile]`, song.audioFile);
     });
 
-    // console.log("FormData Entries:");
-    // for (const [key, value] of formDataToSend.entries()) {
-    //   console.log(key, value);
-    // }
-
     try {
-      const response = await axios.post("/api/auth/song-upload", formDataToSend, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const response = await axios.post("/api/cloud/song-upload", formDataToSend);
       toast.success("Upload successful!");
       console.log("Upload Success:", response.data);
     } catch (error) {
@@ -145,6 +149,7 @@ export default function UploadSong() {
                   placeholder="Enter album title"
                   value={albumData.title}
                   onChange={handleChange}
+                  required
                 />
               </div>
               <div>
@@ -170,14 +175,14 @@ export default function UploadSong() {
                 />
               </div>
               <div>
-                <Label htmlFor="coverImage">Cover Image</Label>
+                <Label htmlFor="coverImage">Album Cover</Label>
                 <Input
-                  placeholder="cover image"
+                  placeholder="album cover image"
                   id="coverImage"
                   name="coverImage"
                   type="file"
                   accept="image/*"
-                  onChange={handleFileChange}
+                  onChange={handleAlbumCoverChange}
                   required
                 />
               </div>
@@ -213,49 +218,34 @@ export default function UploadSong() {
                     onChange={(e) => handleSongChange(e, index)}
                     required
                   />
-                  <Label htmlFor={`duration-${index}`}>Duration</Label>
+                  <Label htmlFor={`SongCoverImage-${index}`}>Song Cover Image</Label>
                   <Input
-                    id={`duration-${index}`}
-                    name="duration"
-                    placeholder="duration in seconds"
-                    type="number"
-                    value={song.duration.toString()}
-                    onChange={(e) => handleSongChange(e, index)}
-                    required
-                  />
-
-                  <Label htmlFor={`coverImage-${index}`}>Cover Image</Label>
-                  <Input
-                    id={`coverImage-${index}`}
-                    placeholder="cover image"
-                    name="coverImage"
+                    placeholder="song cover mage"
+                    id={`SongCoverImage-${index}`}
+                    name="SongCoverImage"
                     type="file"
                     accept="image/*"
-                    onChange={(e) => handleFileChange(e, index)}
+                    onChange={(e) => handleSongFileChange(e, index)}
                     required
                   />
                   <Label htmlFor={`audioFile-${index}`}>Audio File</Label>
                   <Input
+                    placeholder="song audio image"
                     id={`audioFile-${index}`}
-                    placeholder="audio file"
                     name="audioFile"
                     type="file"
                     accept="audio/*"
-                    onChange={(e) => handleFileChange(e, index)}
+                    onChange={(e) => handleSongFileChange(e, index)}
                     required
                   />
                 </div>
               ))}
-              <Button
-                type="button"
-                onClick={handleAddSong}
-                className="w-full flex items-center justify-center gap-2"
-              >
-                <IoAddCircleOutline /> Add Song
+              <div className="flex flex-col md:flex-row items-center justify-center gap-3 ">
+              <Button type="button" onClick={handleAddSong} className="flex gap-1 justify-center items-center">
+              <IoAddCircleOutline /> Add Song
               </Button>
-              <Button type="submit" className="w-full">
-                Upload Album
-              </Button>
+              <Button type="submit">Upload Album</Button>
+              </div>
             </form>
           </CardContent>
         </Card>

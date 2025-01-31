@@ -1,44 +1,64 @@
-// src/app/api/upload/song/route.ts
+import connectDB from "@/db/connectDB";
+import UserModal from "@/modals/UserModal";
+import { NextRequest, NextResponse } from "next/server";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
-import { NextApiRequest, NextApiResponse } from 'next';
-import formidable from 'formidable';
-
-// Disable the default body parser to handle multipart form data
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
-
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'POST') {
-    res.setHeader('Allow', 'POST');
-    res.status(405).json({ message: `Method ${req.method} Not Allowed` });
-    return;
-  }
+export async function POST(req: NextRequest) {
+  await connectDB();
 
   try {
-    // Parse the incoming form data
-    const data = await new Promise<{ fields: formidable.Fields; files: formidable.Files }>(
-      (resolve, reject) => {
-        const form = formidable({ multiples: true, uploadDir: './public/uploads', keepExtensions: true });
+    const { email, password } = await req.json();
 
-        form.parse(req, (err, fields, files) => {
-          if (err) reject(err);
-          else resolve({ fields, files });
-        });
-      }
+    if (!email || !password) {
+      return NextResponse.json(
+        { message: "Please provide email and password", success: false },
+        { status: 400 }
+      );
+    }
+
+    const user = await UserModal.findOne({ email });
+    if (!user) {
+      return NextResponse.json(
+        { message: "User not found", success: false },
+        { status: 404 }
+      );
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return NextResponse.json(
+        { message: "Invalid credentials", success: false },
+        { status: 401 }
+      );
+    }
+
+    const token = jwt.sign(
+      { userId: user._id, email: user.email },
+      process.env.SECRET_KEY as string,
+      { expiresIn: "15d" }
     );
 
-    // Log the received fields and files
-    console.log('Fields:', data.fields);
-    console.log('Files:', data.files);
+    const response = NextResponse.json({
+      message: "Login successful",
+      success: true,
+      user: { username: user.username, email: user.email },
+    });
 
-    // TODO: Process the fields and files (e.g., save to database, move files, etc.)
+    response.cookies.set("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production" && req.url.startsWith("https"),
+      sameSite: "strict",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 15,
+    });
 
-    res.status(200).json({ message: 'Upload successful!' });
+    return response;
   } catch (error) {
-    console.error('Error processing upload:', error);
-    res.status(500).json({ message: 'Error processing upload' });
+    console.error("Login error:", error);
+    return NextResponse.json(
+      { message: "Error logging in", success: false },
+      { status: 500 }
+    );
   }
 }
