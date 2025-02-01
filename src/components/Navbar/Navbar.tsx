@@ -62,7 +62,7 @@ export default function Navbar() {
   }, []);
 
   return (
-    <nav className="bg-black text-white px-4 py-3">
+    <nav className="bg-black text-white px-4 py-3 fixed w-full z-20">
       <div className="flex justify-between items-center max-w-7xl mx-auto">
         {/* Logo */}
         <Link href="/">
@@ -71,7 +71,7 @@ export default function Navbar() {
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center space-x-6">
-          <NavItem href="/" icon={<GoHome size={20} />} label="Home" />
+          <NavItem href="/home" icon={<GoHome size={20} />} label="Home" />
           <div className="relative">
             {/* Search Input */}
             <input
