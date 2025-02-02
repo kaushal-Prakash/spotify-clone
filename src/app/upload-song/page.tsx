@@ -134,7 +134,7 @@ export default function UploadSong() {
   return (
     <div className="bg-spotify-black">
       <Navbar />
-      <div className="flex justify-center items-center mt-10 min-h-screen">
+      <div className="flex justify-center items-center min-h-screen">
         <Card className="w-full max-w-xl shadow-lg mb-10">
           <CardContent className="p-6 space-y-6">
             <h1 className="text-2xl text-spotify-green font-bold text-center">
