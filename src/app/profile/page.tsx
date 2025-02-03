@@ -4,31 +4,32 @@ import AlbumCard from "@/components/AlbumCard/AlbumCard";
 import Navbar from "@/components/Navbar/Navbar";
 import SongCard from "@/components/SongCard/SongCard";
 import { Album } from "@/modals/AlbumModal";
+import { UserStore } from "@/store/store";
 import axios from "axios";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
 const ProfilePage = () => {
-  const [user, setUser] = useState<any>(null);
+  const user = UserStore<any>((state) => state.userData); 
+  const updateUser = UserStore((state) => state.updateData); 
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const res = await axios.get("/api/auth/get-details");
-        setUser(res.data.user);
+        updateUser(res.data.user); // Update Zustand store
       } catch (error) {
         console.error("Error fetching data:", error);
-        toast.error("User details failed to load !");
+        toast.error("User details failed to load!");
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, []);
-  console.log(user);
+  }, [updateUser]);
 
   if (loading) {
     return <p className="text-center text-spotify-light-gray">Loading...</p>;
