@@ -7,13 +7,13 @@ import { Album } from "@/modals/AlbumModal";
 import { UserStore } from "@/store/store";
 import axios from "axios";
 import Image from "next/image";
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect } from "react";
 import { toast } from "react-toastify";
+import Loading from "../feed/loading";
 
 const ProfilePage = () => {
   const user = UserStore<any>((state) => state.userData); 
   const updateUser = UserStore((state) => state.updateData); 
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -23,22 +23,17 @@ const ProfilePage = () => {
       } catch (error) {
         console.error("Error fetching data:", error);
         toast.error("User details failed to load!");
-      } finally {
-        setLoading(false);
       }
     };
 
     fetchData();
   }, [updateUser]);
 
-  if (loading) {
-    return <p className="text-center text-spotify-light-gray">Loading...</p>;
-  }
-
   return (
     <div className="bg-spotify-black min-h-screen text-spotify-white">
       <Navbar />
-      <div className="flex flex-col items-center p-6">
+      <Suspense fallback={<Loading />}>
+      <div className="flex flex-col items-center p-6" >
         <h2 className="text-5xl font-bold mt-12 mb-6 text-spotify-green">
           Profile
         </h2>
@@ -103,6 +98,7 @@ const ProfilePage = () => {
           </div>
         </div>
       </div>
+      </Suspense>
     </div>
   );
 };
