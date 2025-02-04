@@ -3,6 +3,7 @@ import axios from "axios";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "react-toastify";
 
 export default function AdminLogin() {
   const [form, setForm] = useState({ email: "", password: "" });
@@ -14,7 +15,12 @@ export default function AdminLogin() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      await axios.post("/api/auth/admin-login", form);
+      const res = await axios.post("/api/auth/admin-login", form);
+      if(res.data.status == 200){
+        toast.success("Logged in successfully!");
+      }else{
+        toast.error("Some error occurred ! try agsin ...");
+      }
       router.push("/home");
     } catch (err) {
       console.log(err);

@@ -12,11 +12,15 @@ import { toast } from "react-toastify";
 import { AiOutlineClose } from "react-icons/ai";
 import { IoCloudUploadOutline, IoLogOutOutline } from "react-icons/io5";
 import { ImProfile } from "react-icons/im";
+import { UserStore } from "@/store/store"; 
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false); // State for user menu
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Zustand store
+  const clearUserStore = UserStore((state) => state.clearStore);
 
   const userMenuRef = useRef<HTMLDivElement | null>(null); // Ref for user menu
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -34,6 +38,7 @@ export default function Navbar() {
       const { message, success } = res.data;
       if (success) {
         toast.success(message);
+        clearUserStore(); // Clear user data from the store
       } else {
         toast.error(message);
       }
