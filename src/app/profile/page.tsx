@@ -14,10 +14,10 @@ import Loading from "../feed/loading";
 const ProfilePage = () => {
   const user = UserStore<any>((state) => state.userData);
   const updateUser = UserStore((state) => state.updateData);
-  
+
   useEffect(() => {
     const fetchData = async () => {
-      if (!user || Object.keys(user).length === 0) { 
+      if (!user || Object.keys(user).length === 0) {
         try {
           const res = await axios.get("/api/auth/get-details");
           updateUser(res.data.user);
@@ -27,81 +27,89 @@ const ProfilePage = () => {
         }
       }
     };
-  
+
     fetchData();
   }, [user, updateUser]);
-  
-  
 
   return (
     <div className="bg-spotify-black min-h-screen text-spotify-white">
       <Navbar />
       <Suspense fallback={<Loading />}>
-      <div className="flex flex-col items-center p-6" >
-        <h2 className="text-5xl font-bold mt-12 mb-6 text-spotify-green">
-          Profile
-        </h2>
-        <div className="bg-spotify-medium-gray w-full p-6 rounded-lg flex md:flex-row justify-between items-center shadow-lg">
-          <div>
-            <p className="text-2xl font-semibold">Username: {user.username}</p>
-            <p className="text-2xl font-semibold">Email: {user.email}</p>
-          </div>
-          <Image
-            src="/profile/brush.jpg"
-            height={100}
-            width={100}
-            alt="Profile Picture"
-            className="rounded-full border-2 border-spotify-green hidden m-2 sm:block"
-          />
-        </div>
-      </div>
+        <div className="flex flex-col items-center p-6">
+          <h2 className="text-5xl font-extrabold mt-12 mb-6 text-spotify-green">
+            Profile
+          </h2>
 
-      {/* Favorite Songs */}
-      <div className="mt-8 w-full p-6">
-        <h3 className="text-3xl font-bold mb-4 text-spotify-purple text-center">
-          Favorite Songs
-        </h3>
-        <div className="flex justify-center items-center">
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-6">
+          {/* Profile Info Section */}
+          <div className="bg-spotify-medium-gray bg-opacity-80 backdrop-blur-lg w-full p-8 rounded-2xl flex flex-col md:flex-row justify-between items-center shadow-2xl transition-all duration-300 hover:scale-[1.02]">
+            <div className="text-center md:text-left">
+              <p className="text-3xl font-bold">{user?.username || "Guest"}</p>
+              <p className="text-lg text-spotify-light-gray">
+                {user?.email || "No email available"}
+              </p>
+            </div>
+            <div className="relative w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-4 border-spotify-green shadow-lg">
+              <Image
+                src="/profile/brush.jpg"
+                layout="fill"
+                objectFit="cover"
+                alt="Profile Picture"
+                className="rounded-full"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Favorite Songs Section */}
+        <div className="mt-12 w-full px-6">
+          <h3 className="text-4xl font-extrabold mb-6 text-spotify-purple text-center">
+            Favorite Songs
+          </h3>
+          <div className="flex justify-center">
             {user?.favorites?.length > 0 ? (
-              user.favorites.map((song: any, index: number) => (
-                <SongCard key={index} {...song} />
-              ))
+              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-6">
+                {user.favorites.map((song: any, index: number) => (
+                  <SongCard key={index} {...song} />
+                ))}
+              </div>
             ) : (
-              <p className="text-spotify-light-gray text-center">
-                No favorite songs added.
-              </p>
+              <div className="flex justify-center items-center min-h-[150px]">
+                <p className="text-spotify-light-gray text-xl text-center">
+                  No favorite songs added.
+                </p>
+              </div>
             )}
           </div>
         </div>
-      </div>
 
-      {/* Uploaded Albums */}
-      <div className="mt-8 w-full p-6">
-        <h3 className="text-3xl font-bold mb-4 text-spotify-blue text-center">
-          Uploaded Albums
-        </h3>
-        <div className="flex justify-center items-center">
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-6">
+        {/* Uploaded Albums Section */}
+        <div className="mt-12 w-full px-6">
+          <h3 className="text-4xl font-extrabold mb-6 text-spotify-blue text-center">
+            Uploaded Albums
+          </h3>
+          <div className="flex justify-center">
             {user?.uploads?.length > 0 ? (
-              user.uploads.map((album: Album, index: number) => (
-                <AlbumCard
-                  key={index}
-                  title={album.title}
-                  artist={album.artist}
-                  coverImage={album.coverImage}
-                  songs={album.songs.length}
-                  releaseDate={album.releaseDate}
-                />
-              ))
+              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-6">
+                {user.uploads.map((album: Album, index: number) => (
+                  <AlbumCard
+                    key={index}
+                    title={album.title}
+                    artist={album.artist}
+                    coverImage={album.coverImage}
+                    songs={album.songs.length}
+                    releaseDate={album.releaseDate}
+                  />
+                ))}
+              </div>
             ) : (
-              <p className="text-spotify-light-gray text-center">
-                No uploaded albums yet.
-              </p>
+              <div className="flex justify-center items-center min-h-[150px]">
+                <p className="text-spotify-light-gray text-xl text-center">
+                  No uploaded albums yet.
+                </p>
+              </div>
             )}
           </div>
         </div>
-      </div>
       </Suspense>
     </div>
   );
