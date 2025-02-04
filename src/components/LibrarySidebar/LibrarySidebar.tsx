@@ -19,8 +19,8 @@ export default function LibrarySidebar({ onPlaylistSelect }) {
       </div>
       
       {/* Search Bar */}
-      <div className="relative mb-4">
-        <FaSearch className="absolute left-3 top-2 text-gray-400" />
+      <div className="relative mb-4 flext">
+        <FaSearch className="absolute left-3 top-3 text-gray-400" />
         <input
           type="text"
           placeholder="Search"

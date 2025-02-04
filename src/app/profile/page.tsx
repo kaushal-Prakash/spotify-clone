@@ -12,22 +12,26 @@ import { toast } from "react-toastify";
 import Loading from "../feed/loading";
 
 const ProfilePage = () => {
-  const user = UserStore<any>((state) => state.userData); 
-  const updateUser = UserStore((state) => state.updateData); 
-
+  const user = UserStore<any>((state) => state.userData);
+  const updateUser = UserStore((state) => state.updateData);
+  
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        const res = await axios.get("/api/auth/get-details");
-        updateUser(res.data.user); // Update Zustand store
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        toast.error("User details failed to load!");
+      if (!user || Object.keys(user).length === 0) { 
+        try {
+          const res = await axios.get("/api/auth/get-details");
+          updateUser(res.data.user);
+        } catch (error) {
+          console.error("Error fetching data:", error);
+          toast.error("User details failed to load!");
+        }
       }
     };
-
+  
     fetchData();
-  }, [updateUser]);
+  }, [user, updateUser]);
+  
+  
 
   return (
     <div className="bg-spotify-black min-h-screen text-spotify-white">
@@ -59,7 +63,7 @@ const ProfilePage = () => {
         </h3>
         <div className="flex justify-center items-center">
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-6">
-            {user.favorites.length > 0 ? (
+            {user?.favorites?.length > 0 ? (
               user.favorites.map((song: any, index: number) => (
                 <SongCard key={index} {...song} />
               ))
@@ -79,7 +83,7 @@ const ProfilePage = () => {
         </h3>
         <div className="flex justify-center items-center">
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-6">
-            {user.uploads.length > 0 ? (
+            {user?.uploads?.length > 0 ? (
               user.uploads.map((album: Album, index: number) => (
                 <AlbumCard
                   key={index}
