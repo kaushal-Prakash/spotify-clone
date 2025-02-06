@@ -1,73 +1,124 @@
 "use client";
-import React from 'react';
-import Image from 'next/image';
-import { IoPlaySkipForward, IoPlaySkipBack } from "react-icons/io5";
-import { FaPlay, FaPause } from 'react-icons/fa';
-import { Song } from '@/modals/SongModal';
 
-interface BottomPlayerProps {
-  currentSong: Song;
-  isPlaying: boolean;
-  onPlayPause: () => void;
-  onSkipForward: () => void;
-  onSkipBack: () => void;
-  currentTime: number;
-  duration: number;
-  onSeek: (value: number) => void;
-}
+import { useEffect, useRef, useState, useCallback } from "react";
+import Image from "next/image";
+import { useAppStore } from "@/store/store";
+import { FaPlay, FaPause, FaStepBackward, FaStepForward } from "react-icons/fa";
 
-const BottomPlayer: React.FC<BottomPlayerProps> = ({ currentSong, isPlaying, onPlayPause, onSkipForward, onSkipBack, currentTime, duration, onSeek }) => {
+export default function BottomPlayer() {
+  const { currentSong, isPlaying, setIsPlaying, setCurrentSong, songs } = useAppStore();
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Skip Forward (Memoized)
+  const handleSkipForward = useCallback(() => {
+    if (!songs.length || !currentSong) return;
+    const currentIndex = songs.findIndex((song) => song._id === currentSong._id);
+    const nextSong = songs[currentIndex + 1] || songs[0]; // Loop back if at the end
+    setCurrentSong(nextSong);
+  }, [songs, currentSong, setCurrentSong]);
+
+  // Skip Backward
+  const handleSkipBackward = () => {
+    if (!songs.length || !currentSong) return;
+    const currentIndex = songs.findIndex((song) => song._id === currentSong._id);
+    const prevSong = songs[currentIndex - 1] || songs[songs.length - 1]; // Loop back if at the start
+    setCurrentSong(prevSong);
+  };
+
+  // Play/Pause Toggle (Handles Promise Error)
+  const togglePlayPause = () => {
+    if (!audioRef.current) return;
+
+    if (isPlaying) {
+      audioRef.current.pause();
+    } else {
+      const playPromise = audioRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise.catch((error) => console.error("Playback error:", error));
+      }
+    }
+    setIsPlaying(!isPlaying);
+  };
+
+  // Seek Handler
+  const handleSeek = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (audioRef.current) {
+      audioRef.current.currentTime = Number(event.target.value);
+      setCurrentTime(Number(event.target.value));
+    }
+  };
+
+  // Effect to handle audio playback (with fixed dependencies)
+  useEffect(() => {
+    if (currentSong && audioRef.current) {
+      audioRef.current.src = currentSong.audio;
+      const playPromise = audioRef.current.play();
+
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => setIsPlaying(true))
+          .catch((error) => console.error("Playback error:", error));
+      }
+
+      audioRef.current.ontimeupdate = () => setCurrentTime(audioRef.current?.currentTime || 0);
+      audioRef.current.onloadedmetadata = () => setDuration(audioRef.current?.duration || 0);
+      audioRef.current.onended = handleSkipForward;
+    }
+  }, [currentSong, handleSkipForward, setIsPlaying]);
+
   return (
-    <div className="fixed bottom-0 left-0 w-full bg-black text-white p-4 shadow-lg flex items-center justify-between md:justify-evenly lg:justify-between">
-      {/* Song Thumbnail */}
-      <Image
-        src={"/logo.png"}
-        alt="Song Thumbnail"
-        width={50}
-        height={50}
-        className="w-12 h-12 rounded-lg"
-      />
-      
-      {/* Song Information */}
-      <div>
-        <p className="text-sm font-medium">{currentSong?.title || "Song Title"}</p>
-        <p className="text-xs text-gray-400">{currentSong?.artist || "Artist Name"}</p>
-      </div>
-      
-      {/* Playback Controls */}
-      <div className="flex items-center space-x-6">
-        <IoPlaySkipBack
-          className="text-2xl cursor-pointer hover:text-green-500"
-          onClick={onSkipBack}
-        />
-        
-        <button
-          className="text-3xl cursor-pointer hover:text-green-500"
-          onClick={onPlayPause}
-        >
-          {isPlaying ? <FaPause /> : <FaPlay />}
+    <div className="fixed bottom-0 w-full bg-spotify-black p-4 flex items-center justify-between border-t border-spotify-dark-gray">
+      {/* Song Info */}
+      {currentSong ? (
+        <div className="flex items-center gap-4">
+          <Image
+            src={currentSong.coverImage}
+            alt={currentSong.title}
+            width={56}
+            height={56}
+            className="rounded-lg"
+            priority={false} // Lazy loading
+          />
+          <div>
+            <p className="text-sm font-medium text-spotify-white">{currentSong.title}</p>
+            <p className="text-xs text-spotify-light-gray">{currentSong.artist}</p>
+          </div>
+        </div>
+      ) : (
+        <p className="text-spotify-light-gray">No song playing</p>
+      )}
+
+      {/* Player Controls */}
+      <div className="flex items-center gap-6">
+        <button onClick={handleSkipBackward} className="text-spotify-light-gray hover:text-spotify-white text-xl">
+          <FaStepBackward />
         </button>
-        
-        <IoPlaySkipForward
-          className="text-2xl cursor-pointer hover:text-green-500"
-          onClick={onSkipForward}
-        />
+        <button onClick={togglePlayPause} className="bg-spotify-green p-3 rounded-full text-spotify-black hover:bg-spotify-dark-green transition">
+          {isPlaying ? <FaPause className="text-xl" /> : <FaPlay className="text-xl ml-1" />}
+        </button>
+        <button onClick={handleSkipForward} className="text-spotify-light-gray hover:text-spotify-white text-xl">
+          <FaStepForward />
+        </button>
       </div>
-      
-      {/* Progress Bar (Hidden on small screens) */}
-      <div className="hidden md:flex items-center space-x-3">
-        <p className="text-sm">{`${currentTime || '0:00'} / ${duration || '0:00'}`}</p>
+
+      {/* Seek Bar */}
+      <div className="flex items-center gap-3 w-1/3">
+        <span className="text-xs text-spotify-light-gray">{Math.floor(currentTime / 60)}:{String(Math.floor(currentTime % 60)).padStart(2, '0')}</span>
         <input
           type="range"
-          className="w-24"
           min="0"
-          max={duration || 100}
-          value={currentTime || 0}
-          onChange={(e) => onSeek(Number(e.target.value))}
+          max={duration}
+          value={currentTime}
+          onChange={handleSeek}
+          className="w-full h-1 bg-spotify-medium-gray rounded-lg appearance-none cursor-pointer"
         />
+        <span className="text-xs text-spotify-light-gray">{Math.floor(duration / 60)}:{String(Math.floor(duration % 60)).padStart(2, '0')}</span>
       </div>
+
+      {/* Hidden Audio Element */}
+      <audio ref={audioRef} />
     </div>
   );
-};
-
-export default BottomPlayer;
+}
