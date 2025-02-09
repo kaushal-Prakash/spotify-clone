@@ -8,12 +8,13 @@ import Navbar from "@/components/Navbar/Navbar";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { IoAddCircleOutline } from "react-icons/io5";
+import { useRouter } from "next/navigation";
 
 export default function UploadSong() {
+  const router = useRouter();
   const [albumData, setAlbumData] = useState({
     title: "",
     artist: "",
-    album: "",
     coverImage: null as File | null,
     songs: [] as {
       genre: string;
@@ -94,7 +95,6 @@ export default function UploadSong() {
     const formDataToSend = new FormData();
     formDataToSend.append("title", albumData.title);
     formDataToSend.append("artist", albumData.artist);
-    formDataToSend.append("album", albumData.album);
 
     if (!albumData.coverImage) {
       toast.error("Please upload an album cover.");
@@ -125,6 +125,7 @@ export default function UploadSong() {
       const response = await axios.post("/api/cloud/song-upload", formDataToSend);
       toast.success("Upload successful!");
       console.log("Upload Success:", response.data);
+      router.push("/home");
     } catch (error) {
       toast.error("Upload failed. Please try again.");
       console.error("Upload Error:", error);
@@ -135,7 +136,7 @@ export default function UploadSong() {
     <div className="bg-spotify-black">
       <Navbar />
       <div className="flex justify-center items-center min-h-screen">
-        <Card className="w-full max-w-xl shadow-lg mb-10">
+        <Card className="w-full max-w-xl shadow-lg mb-10 mt-14">
           <CardContent className="p-6 space-y-6">
             <h1 className="text-2xl text-spotify-green font-bold text-center">
               Create an album
@@ -159,17 +160,6 @@ export default function UploadSong() {
                   name="artist"
                   placeholder="Enter artist name"
                   value={albumData.artist}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="album">Album</Label>
-                <Input
-                  id="album"
-                  name="album"
-                  placeholder="Enter album name"
-                  value={albumData.album}
                   onChange={handleChange}
                   required
                 />

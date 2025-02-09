@@ -13,9 +13,8 @@ export async function POST(req: NextRequest) {
     const data = await req.formData();
     const title = data.get("title") as string;
     const artist = data.get("artist") as string;
-    const albumName = data.get("album") as string;
 
-    if (!title || !artist || !albumName) {
+    if (!title || !artist) {
       return NextResponse.json(
         { message: "Missing album details" },
         { status: 400 }

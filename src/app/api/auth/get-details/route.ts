@@ -35,6 +35,8 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
 
+    console.log(user);
+
     return NextResponse.json(
       { message: "User details successfully fetched!", user },
       { status: 200 }
