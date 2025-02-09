@@ -3,7 +3,7 @@ import "./LoadingAnimation.css";
 
 export default function LoadingAnimation() {
   return (
-    <div className="flex flex-col items-center justify-center h-screen bg-gray-900 text-white">
+    <div className="flex flex-col items-center justify-center h-screen bg-spotify-dark-gray text-white">
       <div className="relative flex items-center justify-center headphone-container">
         <FaHeadphones className="text-6xl text-blue-400 headphone" />
         <div className="wave wave1"></div>
