@@ -9,7 +9,7 @@ export default function PlayListView() {
 
   return (
     <div className="p-6">
-      <h2 className="text-2xl font-bold mb-4">All Songs</h2>
+      <h2 className="text-2xl pt-14 font-bold mb-4">All Songs</h2>
       {songs.length > 0 ? (
         <ul className="space-y-3">
           {songs.map((song) => (
@@ -33,7 +33,7 @@ export default function PlayListView() {
                   <p className="text-xs text-gray-400">{song.artist}</p>
                 </div>
               </div>
-              <button className="text-green-500 text-lg">
+              <button className="text-green-500 text-lg hover:scale105 hover:text-spotify-white transition-all duration-300">
                 <FaPlay />
               </button>
             </li>
