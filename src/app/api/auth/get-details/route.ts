@@ -23,13 +23,15 @@ export async function GET(req: NextRequest) {
   try {
     await connectDB();
 
-    const user = await UserModel.findOne({ email })
-      .populate({
+    const user = await UserModel.findOne({ email }).populate([
+      {
         path: "uploads",
-        populate: {
-          path: "songs",
-        },
-      });
+        populate: { path: "songs" },
+      },
+      {
+        path: "favorites",
+      },
+    ]);
 
     if (!user) {
       return NextResponse.json({ message: "User not found" }, { status: 404 });

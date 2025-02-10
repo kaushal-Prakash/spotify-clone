@@ -1,8 +1,14 @@
+"use client";
+import { UserStore } from "@/store/store";
+import axios from "axios";
 import Image from "next/image";
-import React, { useState } from "react";
-import { FaHeart, FaPlay } from "react-icons/fa";
+import React, { useState, useEffect } from "react";
+import { FaHeart } from "react-icons/fa";
+import { MdOutlinePlayCircleOutline } from "react-icons/md";
+import { toast } from "react-toastify";
 
 interface SongCardProps {
+  id: string;
   title: string;
   artist: string;
   genre: string;
@@ -13,37 +19,53 @@ interface SongCardProps {
 }
 
 const SongCard: React.FC<SongCardProps> = ({
+  id,
   title,
   artist,
   coverImage,
   duration,
   genre,
 }) => {
-  const [isFavorite, setIsFavorite] = useState(false);
+  // Fetch favorites from the store
+  const favSongs = UserStore((state) => state.userData.favorites || []); // 👈 Correctly typed as { _id: string }[]
+  const updateFavorites = UserStore((state) => state.setUserFavorites);
 
+  // Check if the current song is a favorite
+  const [isFavorite, setIsFavorite] = useState(
+    favSongs.some((song) => song._id === id)
+  );
+
+  // Update isFavorite state when favSongs changes
+  useEffect(() => {
+    setIsFavorite(favSongs.some((song) => song._id === id));
+  }, [favSongs, id]);
+
+  // Format song duration
   const formatDuration = (duration: number) => {
     const minutes = Math.floor(duration / 60);
     const seconds = duration % 60;
     return `${minutes}:${seconds.toString().padStart(2, "0")}`;
   };
 
+  // Handle adding/removing from favorites
   const handleFavorite = async () => {
     try {
-      const response = await fetch("/api/auth/add-to-fav", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ title, artist }),
-      });
+      const res = await axios.post(`/api/auth/fav/add-to-fav/${id}`, { id });
 
-      if (response.ok) {
-        setIsFavorite(!isFavorite);
+      if (res.status === 200) {
+        toast.success("Added to favorites!");
+
+        // Update local state
+        setIsFavorite(true);
+
+        // Update global store
+        updateFavorites(id); // 👈 Pass the ID directly
       } else {
-        console.error("Failed to add to favorites");
+        toast.error("Failed to add to favorites!");
       }
     } catch (error) {
       console.error("Error adding to favorites", error);
+      toast.error("Something went wrong!");
     }
   };
 
@@ -61,7 +83,7 @@ const SongCard: React.FC<SongCardProps> = ({
         {/* Play Button Overlay */}
         <div className="absolute inset-0 flex items-center justify-center bg-spotify-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
           <button className="p-3 bg-spotify-green rounded-full text-spotify-white hover:bg-spotify-dark-green transition-all duration-300">
-            <FaPlay className="text-lg" />
+            <MdOutlinePlayCircleOutline size={24} className="text-white" />
           </button>
         </div>
       </div>
@@ -84,11 +106,7 @@ const SongCard: React.FC<SongCardProps> = ({
         onClick={handleFavorite}
       >
         <FaHeart
-          className={
-            isFavorite
-              ? "text-spotify-red animate-pulse"
-              : "text-spotify-light-gray"
-          }
+          className={isFavorite ? "text-spotify-red animate-pulse" : "text-spotify-light-gray"}
         />
       </button>
     </div>

@@ -44,6 +44,7 @@ function Library() {
             songs.map((song) => (
               <div key={song._id} className="w-full">
                 <SongCard
+                id={song._id}
                   title={song.title}
                   artist={song.artist}
                   genre={song.genre}

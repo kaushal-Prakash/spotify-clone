@@ -2,9 +2,13 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
 export interface UserData {
-  userData: Record<string, unknown>;
+  userData: {
+    favorites?: { _id: string }[];
+    [key: string]: unknown;
+  };
   updateData: (newData: Record<string, unknown>) => void;
   clearStore: () => void;
+  setUserFavorites: (id: string) => void; // Accepts an ID as a parameter
 }
 
 export const UserStore = create<UserData>()(
@@ -13,14 +17,23 @@ export const UserStore = create<UserData>()(
       userData: {},
       updateData: (newData) => set(() => ({ userData: newData })),
       clearStore: () => set(() => ({ userData: {} })),
+      
+      setUserFavorites: (id) =>
+        set((state) => ({
+          userData: {
+            ...state.userData,
+            favorites: [...(state.userData.favorites || []), { _id: id }], // Ensure `favorites` exists
+          },
+        })),
     }),
     {
       name: "user-data-storage",
       storage: createJSONStorage(() => sessionStorage),
-      onRehydrateStorage: () => console.log("rehydrated"),
+      onRehydrateStorage: () => console.log("Rehydrated user data"),
     }
   )
 );
+
 
 export interface Song {
   createdAt: Date;
