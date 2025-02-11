@@ -69,20 +69,23 @@ const ProfilePage = () => {
         <h3 className="text-4xl font-extrabold mb-6 text-spotify-purple text-center">
           Favorite Songs
         </h3>
-        <div className="flex justify-center">
+        <div className="w-full">
+          {" "}
+          {/* Ensure full width */}
           {isLoading ? ( // Show skeleton if data is loading
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-6">
-              {Array.from({ length: 5 }).map((_,index) => (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+              {Array.from({ length: 5 }).map((_, index) => (
                 <SongCardLoading key={index} />
               ))}
             </div>
           ) : user?.favorites?.length > 0 ? ( // Show data if available
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
               {user.favorites.map((song: any, index: number) => (
                 <SongCard key={index} {...song} />
               ))}
             </div>
-          ) : ( // Show message if no favorites
+          ) : (
+            // Show message if no favorites
             <div className="flex justify-center items-center min-h-[150px]">
               <p className="text-spotify-light-gray text-xl text-center">
                 No favorite songs yet.
@@ -117,7 +120,8 @@ const ProfilePage = () => {
                 />
               ))}
             </div>
-          ) : ( // Show message if no albums
+          ) : (
+            // Show message if no albums
             <div className="flex justify-center items-center min-h-[150px]">
               <p className="text-spotify-light-gray text-xl text-center">
                 No uploaded albums yet.
