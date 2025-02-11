@@ -2,6 +2,7 @@
 
 import { UserStore } from "@/store/store";
 import axios from "axios";
+import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { FaSearch, FaHeart, FaUpload } from "react-icons/fa";
 import { toast } from "react-toastify";
@@ -111,9 +112,11 @@ export default function LibrarySidebar() {
           currentList.map((item) => (
             <div
               key={item._id}
-              className="block p-2 bg-gray-900 rounded-md hover:bg-gray-700 cursor-pointer"
+              className="p-2 bg-gray-900 rounded-md hover:bg-gray-700 cursor-pointer flex gap-3 items-center"
             >
-              {item.title}
+              <Image src={item.coverImage} height="30" width="30" alt="logo" className="rounded-md max-h-7"/>
+              <p>{item.title}</p>
+              
             </div>
           ))
         ) : (
