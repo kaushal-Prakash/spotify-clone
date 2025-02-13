@@ -1,11 +1,12 @@
 "use client";
 
-import { UserStore } from "@/store/store";
+import { Album, UserData, UserStore } from "@/store/store";
 import axios from "axios";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { FaSearch, FaHeart, FaUpload } from "react-icons/fa";
 import { toast } from "react-toastify";
+import { useAppStore } from "@/store/store";
 
 interface Song {
   _id: string;
@@ -19,29 +20,13 @@ interface Song {
   createdAt: string;
 }
 
-interface Upload {
-  _id: string;
-  title: string;
-  artist: string;
-  coverImage: string;
-  songs: Song[];
-  releaseDate: string;
-}
-
-interface UserData {
-  username: string;
-  email: string;
-  favorites: Song[];
-  uploads: Upload[];
-}
-
 export default function LibrarySidebar() {
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState<"favorites" | "uploads">("favorites");
 
-  // Fix: Explicitly cast userData to UserData or null
   const userData = UserStore((state) => state.userData) as unknown as UserData | null;
   const updateUser = UserStore((state) => state.updateData);
+  const setSongs = useAppStore((state) => state.setSongs);
 
   const favorites = userData?.favorites || [];
   const uploads = userData?.uploads || [];
@@ -62,6 +47,10 @@ export default function LibrarySidebar() {
 
     fetchData();
   }, [userData, updateUser]);
+
+  const handleAlbumClick = (album: Album) => {
+    setSongs(album.songs);
+  };
 
   const currentList =
     activeTab === "favorites"
@@ -113,10 +102,10 @@ export default function LibrarySidebar() {
             <div
               key={item._id}
               className="p-2 bg-gray-900 rounded-md hover:bg-gray-700 cursor-pointer flex gap-3 items-center"
+              onClick={() => activeTab === "uploads" && handleAlbumClick(item)}
             >
               <Image src={item.coverImage} height="30" width="30" alt="logo" className="rounded-md max-h-7"/>
               <p>{item.title}</p>
-              
             </div>
           ))
         ) : (

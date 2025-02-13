@@ -36,7 +36,7 @@ export const UserStore = create<UserData>()(
 
 
 export interface Song {
-  createdAt: Date;
+  createdAt: string;
   _id: string;
   title: string;
   artist: string;

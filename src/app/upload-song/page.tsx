@@ -8,10 +8,8 @@ import Navbar from "@/components/Navbar/Navbar";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { IoAddCircleOutline } from "react-icons/io5";
-import { useRouter } from "next/navigation";
 
 export default function UploadSong() {
-  const router = useRouter();
   const [albumData, setAlbumData] = useState({
     title: "",
     artist: "",
@@ -125,7 +123,7 @@ export default function UploadSong() {
       const response = await axios.post("/api/cloud/song-upload", formDataToSend);
       toast.success("Upload successful!");
       console.log("Upload Success:", response.data);
-      router.push("/home");
+      window.location.href = "/home";
     } catch (error) {
       toast.error("Upload failed. Please try again.");
       console.error("Upload Error:", error);
