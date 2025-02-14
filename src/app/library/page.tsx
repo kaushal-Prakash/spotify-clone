@@ -27,8 +27,12 @@ function Library() {
         setIsLoading(false); // Set loading to false after fetching data
       }
     };
-    fetchData();
-  }, [setSongs]);
+    if (songs.length === 0) {
+      fetchData();
+    } else {
+      setIsLoading(false);
+    }
+  }, [setSongs,songs]);
 
   return (
     <div className="w-full min-h-screen bg-spotify-dark-gray text-spotify-white">
@@ -43,17 +47,17 @@ function Library() {
           ) : songs.length > 0 ? ( // Show the songs if available
             songs.map((song) => (
               <div key={song._id} className="w-full">
-                <SongCard
-                id={song._id}
-                  title={song.title}
-                  artist={song.artist}
-                  genre={song.genre}
-                  duration={song.duration}
-                  coverImage={song.coverImage}
-                  audio={song.audio}
-                  createdAt={song.createdAt}
-                />
-              </div>
+                  <SongCard
+                    id={song._id}
+                    title={song.title}
+                    artist={song.artist}
+                    genre={song.genre}
+                    duration={song.duration}
+                    coverImage={song.coverImage}
+                    audio={song.audio}
+                    createdAt={song.createdAt} 
+                  />
+                </div>
             ))
           ) : ( // Show message if no songs are available
             <p className="text-center text-spotify-light-gray col-span-full">

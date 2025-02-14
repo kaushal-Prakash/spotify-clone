@@ -5,15 +5,33 @@ import { useAppStore } from "@/store/store";
 import { FaPlay } from "react-icons/fa";
 import { useEffect, useState } from "react";
 import PlayListViewSkeleton from "../PlayListViewSkeleton/PlayListViewSkeleton";
+import axios from "axios";
+import { toast } from "react-toastify";
 
 export default function PlayListView() {
   const songs = useAppStore((store) => store.songs);
+  const setSongs = useAppStore((store) => store.setSongs);
   const setCurrentSong = useAppStore((store) => store.setCurrentSong);
   const [isLoading, setIsLoading] = useState(true);
 
+  
   useEffect(() => {
-    setIsLoading(false);
-  }, [songs]);
+    const fetchData = async () => {
+      try {
+        const res = await axios.get("/api/db/get-songs");
+        if (res.status !== 200) {
+          toast.error("Failed to fetch song data");
+          return;
+        }
+        setSongs(res.data.data);
+      } catch (err) {
+        console.error("Error fetching songs:", err);
+      } finally {
+        setIsLoading(false); // Set loading to false after fetching data
+      }
+    };
+    fetchData();
+  }, [setSongs]);
 
   return (
     <div className="p-6">

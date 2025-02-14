@@ -36,11 +36,10 @@ export const UserStore = create<UserData>()(
 
 
 export interface Song {
-  createdAt: string;
+  createdAt: Date;
   _id: string;
   title: string;
   artist: string;
-  album: { _id: string; title: string; coverImage: string };
   genre: string;
   duration: number;
   coverImage: string;

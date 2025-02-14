@@ -1,11 +1,12 @@
 "use client";
-import { UserStore } from "@/store/store";
+import { useAppStore, UserStore } from "@/store/store";
 import axios from "axios";
 import Image from "next/image";
 import React, { useState, useEffect } from "react";
 import { FaHeart } from "react-icons/fa";
 import { MdOutlinePlayCircleOutline } from "react-icons/md";
 import { toast } from "react-toastify";
+import { useShallow } from "zustand/shallow";
 
 interface SongCardProps {
   id: string;
@@ -24,10 +25,12 @@ const SongCard: React.FC<SongCardProps> = ({
   artist,
   coverImage,
   duration,
+  createdAt,
   genre,
+  audio
 }) => {
   // Fetch favorites from the store
-  const favSongs = UserStore((state) => state.userData.favorites || []); // 👈 Correctly typed as { _id: string }[]
+  const favSongs = UserStore(useShallow((state) => state.userData.favorites || [])); 
   const updateFavorites = UserStore((state) => state.setUserFavorites);
 
   // Check if the current song is a favorite
@@ -59,14 +62,28 @@ const SongCard: React.FC<SongCardProps> = ({
         setIsFavorite(true);
 
         // Update global store
-        updateFavorites(id); // 👈 Pass the ID directly
+        updateFavorites(id);
       } else {
-        toast.error("Failed to add to favorites!");
+        toast.error(`${res.data.message}`);
       }
     } catch (error) {
       console.error("Error adding to favorites", error);
-      toast.error("Something went wrong!");
     }
+  };
+
+  //handle song click
+  const setCurrentSong = useAppStore((state) => state.setCurrentSong);
+  const handleSongClick = () => {
+    setCurrentSong({
+      _id: id,
+      title,
+      artist,
+      genre,
+      duration,
+      coverImage,
+      audio,
+      createdAt,
+    });
   };
 
   return (
@@ -82,14 +99,15 @@ const SongCard: React.FC<SongCardProps> = ({
         />
         {/* Play Button Overlay */}
         <div className="absolute inset-0 flex items-center justify-center bg-spotify-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <button className="p-3 bg-spotify-green rounded-full text-spotify-white hover:bg-spotify-dark-green transition-all duration-300">
+          <button className="p-3 bg-spotify-green rounded-full text-spotify-white hover:bg-spotify-dark-green transition-all duration-300"
+          onClick={handleSongClick}>
             <MdOutlinePlayCircleOutline size={24} className="text-white" />
           </button>
         </div>
       </div>
 
       {/* Song Details */}
-      <div className="flex flex-col space-y-2">
+      <div className="flex flex-col space-y-2" onClick={handleSongClick}>
         <h3 className="text-spotify-white text-lg font-bold truncate">{title}</h3>
         <p className="text-spotify-light-gray text-sm truncate">by {artist}</p>
         <div className="flex justify-between items-center">
