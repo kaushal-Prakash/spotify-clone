@@ -26,10 +26,10 @@ const ProfilePage = () => {
           console.error("Error fetching data:", error);
           toast.error("User details failed to load!");
         } finally {
-          setIsLoading(false); // Set loading to false after data is fetched
+          setIsLoading(false);
         }
       } else {
-        setIsLoading(false); // Set loading to false if user data is already available
+        setIsLoading(false); 
       }
     };
 

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import axios from "axios";
@@ -5,7 +6,7 @@ import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { FaSearch, FaHeart, FaUpload } from "react-icons/fa";
 import { toast } from "react-toastify";
-import { Album, useAppStore } from "@/store/store";
+import { Album, useAppStore, UserStore } from "@/store/store";
 
 export default function LibrarySidebar() {
   const [search, setSearch] = useState("");
@@ -14,9 +15,29 @@ export default function LibrarySidebar() {
   const userDetails = useAppStore((state) => state.userDetails);
   const setUserDetails = useAppStore((state) => state.setUserDetails);
   const setSongs = useAppStore((state) => state.setSongs);
+  const setCurrentSong = useAppStore((state) => state.setCurrentSong);
 
-  const favorites = userDetails?.favorites || [];
-  const uploads = userDetails?.uploadedSongs || [];
+  const user = UserStore<any>((state) => state.userData);
+  const updateUser = UserStore((state) => state.updateData);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!user || Object.keys(user).length === 0) {
+        try {
+          const res = await axios.get("/api/auth/get-details");
+          updateUser(res.data.user);
+        } catch (error) {
+          console.error("Error fetching data:", error);
+          toast.error("User details failed to load!");
+        }
+      }
+    };
+
+    fetchData();
+  }, [user, updateUser]);
+
+  const favorites = user?.favorites || [];
+  const uploads = user?.uploads || [];
 
   useEffect(() => {
     const fetchData = async () => {
@@ -57,17 +78,19 @@ export default function LibrarySidebar() {
     const album = await fetchAlbumDetails(albumId);
     if (album) {
       setSongs(album.songs);
+      if (album.songs.length > 0) {
+        setCurrentSong(album.songs[0]); 
+      }
     }
   };
 
-  const filteredList =
-    activeTab === "favorites"
-      ? favorites.filter((fav) =>
-          fav.title.toLowerCase().includes(search.toLowerCase())
-        )
-      : uploads.filter((upload) =>
-          upload.title.toLowerCase().includes(search.toLowerCase())
-        );
+  const filteredItems = activeTab === "favorites"
+    ? favorites.filter((item: any) =>
+        item.title.toLowerCase().includes(search.toLowerCase())
+      )
+    : uploads.filter((item: any) =>
+        item.title.toLowerCase().includes(search.toLowerCase())
+      );
 
   return (
     <div className="hidden md:flex flex-col w-64 h-screen rounded-lg bg-black text-white mt-16 p-4">
@@ -105,18 +128,20 @@ export default function LibrarySidebar() {
 
       {/* List of Favorites or Uploads */}
       <div className="space-y-2 overflow-y-auto">
-        {filteredList.length > 0 ? (
-          filteredList.map((item) => (
+        {filteredItems.length > 0 ? (
+          filteredItems.map((item: any) => (
             <div
               key={item._id}
               className="p-2 bg-gray-900 rounded-md hover:bg-gray-700 cursor-pointer flex gap-3 items-center"
-              onClick={() => activeTab === "uploads" && handleAlbumClick(item.album._id)}
+              onClick={() =>
+                activeTab === "uploads" && handleAlbumClick(item._id)
+              }
             >
               <Image
                 src={item.coverImage}
                 height={30}
                 width={30}
-                alt="Album Cover"
+                alt="Cover"
                 className="rounded-md max-h-7"
               />
               <p className="truncate">{item.title}</p>
