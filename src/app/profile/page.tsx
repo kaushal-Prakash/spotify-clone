@@ -3,8 +3,7 @@
 import AlbumCard from "@/components/AlbumCard/AlbumCard";
 import Navbar from "@/components/Navbar/Navbar";
 import SongCard from "@/components/SongCard/SongCard";
-import { Album } from "@/modals/AlbumModal";
-import { UserStore } from "@/store/store";
+import { Album, UserStore } from "@/store/store";
 import axios from "axios";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
@@ -112,6 +111,7 @@ const ProfilePage = () => {
               {user.uploads.map((album: Album, index: number) => (
                 <AlbumCard
                   key={index}
+                  id={album._id}
                   title={album.title}
                   artist={album.artist}
                   coverImage={album.coverImage}

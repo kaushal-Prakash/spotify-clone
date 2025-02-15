@@ -1,8 +1,10 @@
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import React from "react";
 import { MdOutlinePlayCircleOutline } from "react-icons/md";
 
 interface AlbumCardProps {
+  id: string;
   title: string;
   artist: string;
   coverImage: string;
@@ -16,9 +18,15 @@ const AlbumCard: React.FC<AlbumCardProps> = ({
   coverImage,
   songs,
   releaseDate,
+  id
 }) => {
   // Format release date
   const formattedReleaseDate = new Date(releaseDate).toLocaleDateString();
+  const router = useRouter();
+
+  const handleClick = () => {
+    router.push(`/album/${id}`);
+  }
 
   return (
     <div className="relative bg-spotify-dark-gray p-4 rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 w-64 cursor-pointer group">
@@ -49,7 +57,8 @@ const AlbumCard: React.FC<AlbumCardProps> = ({
         <p className="text-spotify-medium-gray text-xs">{songs} songs</p>
 
         {/* Action Button */}
-        <button className="mt-4 w-full py-2 bg-spotify-purple text-white rounded-full font-bold hover:bg-spotify-pink transition-colors duration-300">
+        <button className="mt-4 w-full py-2 bg-spotify-purple text-white rounded-full font-bold hover:bg-spotify-pink transition-colors duration-300"
+        onClick={handleClick}>
           View Album
         </button>
       </div>

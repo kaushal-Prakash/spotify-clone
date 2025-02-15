@@ -24,7 +24,7 @@ function Library() {
       } catch (err) {
         console.error("Error fetching songs:", err);
       } finally {
-        setIsLoading(false); // Set loading to false after fetching data
+        setIsLoading(false);
       }
     };
     if (songs.length === 0) {
