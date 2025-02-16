@@ -86,10 +86,10 @@ export default function LibrarySidebar() {
 
   const filteredItems = activeTab === "favorites"
     ? favorites.filter((item: any) =>
-        item.title.toLowerCase().includes(search.toLowerCase())
+        item?.title.toLowerCase().includes(search.toLowerCase())
       )
     : uploads.filter((item: any) =>
-        item.title.toLowerCase().includes(search.toLowerCase())
+        item?.title.toLowerCase().includes(search.toLowerCase())
       );
 
   return (
