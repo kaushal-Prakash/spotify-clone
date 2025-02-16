@@ -2,7 +2,7 @@ import React from "react";
 
 const SongCardSkeleton: React.FC = () => {
   return (
-    <div className="bg-spotify-dark-gray border-2 border-spotify-green min-w-64 max-w-72 p-4 rounded-lg shadow-lg relative animate-pulse">
+    <div className="bg-spotify-dark-gray border-2 border-spotify-green min-w-64 max-w-72 p-4 rounded-lg shadow-lg relative animate-pulse max-h-fit">
       {/* Cover Image Skeleton */}
       <div className="relative h-48 w-full mb-4 rounded-lg overflow-hidden bg-spotify-medium-gray">
         {/* Placeholder for Image */}
