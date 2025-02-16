@@ -8,7 +8,8 @@ import axios from "axios";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import SongCardLoading, { AlbumCardLoading } from "../loading";
+import { AlbumCardLoading } from "../loading";
+import SongCardSkeleton from "@/components/feeds/SongCardSkeleton";
 
 const ProfilePage = () => {
   const user = UserStore<any>((state) => state.userData);
@@ -74,7 +75,7 @@ const ProfilePage = () => {
           {isLoading ? ( // Show skeleton if data is loading
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
               {Array.from({ length: 5 }).map((_, index) => (
-                <SongCardLoading key={index} />
+                <SongCardSkeleton key={index} />
               ))}
             </div>
           ) : user?.favorites?.length > 0 ? ( // Show data if available
