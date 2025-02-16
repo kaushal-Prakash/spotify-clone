@@ -64,7 +64,7 @@ export default function BottomPlayer() {
         <div className="flex items-center gap-4 mb-2">
           <Image src={currentSong.coverImage} alt={currentSong.title} width={56} height={56} className="rounded-lg" />
           <div>
-            <p className="text-sm font-medium text-spotify-white">{currentSong.title}</p>
+            <p className="text-sm font-medium text-spotify-white whitespace-nowrap">{currentSong.title}</p>
             <p className="text-xs text-spotify-light-gray">{currentSong.artist}</p>
           </div>
         </div>
