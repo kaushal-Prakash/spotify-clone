@@ -24,6 +24,25 @@ export default function UploadSong() {
     }[],
   });
 
+  // Function to calculate audio duration
+  const getAudioDuration = (file: File): Promise<number> => {
+    return new Promise((resolve, reject) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const reader = new FileReader();
+
+      reader.onload = function (e) {
+        const arrayBuffer = e.target?.result as ArrayBuffer;
+        audioContext.decodeAudioData(arrayBuffer, (buffer) => {
+          resolve(buffer.duration); // Duration in seconds
+        }, reject);
+      };
+
+      reader.onerror = reject;
+      reader.readAsArrayBuffer(file);
+    });
+  };
+
   // Handles changes for album cover
   const handleAlbumCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { files } = e.target;
@@ -33,15 +52,33 @@ export default function UploadSong() {
   };
 
   // Handles changes for individual song files (SongCoverImage & audioFile)
-  const handleSongFileChange = (
+  const handleSongFileChange = async (
     e: React.ChangeEvent<HTMLInputElement>,
     index: number
   ) => {
     const { name, files } = e.target;
     if (files && files.length > 0) {
+      const file = files[0];
+
+      // Calculate duration if the file is an audio file
+      let duration = 0;
+      if (name === "audioFile") {
+        try {
+          duration = await getAudioDuration(file);
+        } catch (error) {
+          console.error("Error calculating audio duration:", error);
+          toast.error("Failed to calculate audio duration.");
+          return;
+        }
+      }
+
       setAlbumData((prev) => {
         const updatedSongs = [...prev.songs];
-        updatedSongs[index] = { ...updatedSongs[index], [name]: files[0] };
+        updatedSongs[index] = {
+          ...updatedSongs[index],
+          [name]: file,
+          ...(name === "audioFile" && { duration }), // Update duration for audio files
+        };
         return { ...prev, songs: updatedSongs };
       });
     }
@@ -229,10 +266,10 @@ export default function UploadSong() {
                 </div>
               ))}
               <div className="flex flex-col md:flex-row items-center justify-center gap-3 ">
-              <Button type="button" onClick={handleAddSong} className="flex gap-1 justify-center items-center">
-              <IoAddCircleOutline /> Add Song
-              </Button>
-              <Button type="submit">Upload Album</Button>
+                <Button type="button" onClick={handleAddSong} className="flex gap-1 justify-center items-center">
+                  <IoAddCircleOutline /> Add Song
+                </Button>
+                <Button type="submit">Upload Album</Button>
               </div>
             </form>
           </CardContent>

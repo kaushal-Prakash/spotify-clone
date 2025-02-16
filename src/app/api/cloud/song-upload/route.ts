@@ -31,18 +31,24 @@ export async function POST(req: NextRequest) {
     }
 
     const albumCoverBuffer = Buffer.from(await albumCoverFile.arrayBuffer());
-    const albumCoverBase64 = `data:${
-      albumCoverFile.type
-    };base64,${albumCoverBuffer.toString("base64")}`;
-
-    const albumCoverUpload = await cloudinary.uploader.upload(
-      albumCoverBase64,
-      {
-        folder: "spotify-album-covers",
-        public_id: `albums/${title.replace(/\s+/g, "_")}`,
-        overwrite: true,
-      }
-    );
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const albumCoverUpload = await new Promise<any>((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        {
+          folder: "spotify-album-covers",
+          public_id: `albums/${title.replace(/\s+/g, "_")}`,
+          overwrite: true,
+        },
+        (error, result) => {
+          if (error) {
+            reject(error);
+          } else {
+            resolve(result!);
+          }
+        }
+      );
+      uploadStream.end(albumCoverBuffer);
+    });
 
     console.log("✅ Album Cover Uploaded:", albumCoverUpload.secure_url);
 
@@ -70,20 +76,24 @@ export async function POST(req: NextRequest) {
       }
 
       const songCoverBuffer = Buffer.from(await songCoverFile.arrayBuffer());
-      const songCoverBase64 = `data:${
-        songCoverFile.type
-      };base64,${songCoverBuffer.toString("base64")}`;
-
-      const songCoverUpload = await cloudinary.uploader.upload(
-        songCoverBase64,
-        {
-          folder: "songs/covers",
-          public_id: `songs/covers/${songTitle.replace(/\s+/g, "_")}`, //to replace space with underscores
-          overwrite: true,
-        }
-      );
-
-      // console.log(`✅ Song Cover Uploaded: ${songCoverUpload.secure_url}`);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const songCoverUpload = await new Promise<any>((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          {
+            folder: "songs/covers",
+            public_id: `songs/covers/${songTitle.replace(/\s+/g, "_")}`,
+            overwrite: true,
+          },
+          (error, result) => {
+            if (error) {
+              reject(error);
+            } else {
+              resolve(result!);
+            }
+          }
+        );
+        uploadStream.end(songCoverBuffer);
+      });
 
       // ✅ Ensure songAudioFile exists
       const songAudioFile = data.get(
@@ -96,21 +106,25 @@ export async function POST(req: NextRequest) {
       }
 
       const songAudioBuffer = Buffer.from(await songAudioFile.arrayBuffer());
-      const songAudioBase64 = `data:${
-        songAudioFile.type
-      };base64,${songAudioBuffer.toString("base64")}`;
-
-      const songAudioUpload = await cloudinary.uploader.upload(
-        songAudioBase64,
-        {
-          folder: "songs/audio",
-          public_id: `songs/audio/${songTitle.replace(/\s+/g, "_")}`,
-          resource_type: "auto",
-          overwrite: true,
-        }
-      );
-
-      console.log(`✅ Song Audio Uploaded: ${songAudioUpload.secure_url}`);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const songAudioUpload = await new Promise<any>((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          {
+            folder: "songs/audio",
+            public_id: `songs/audio/${songTitle.replace(/\s+/g, "_")}`,
+            resource_type: "auto",
+            overwrite: true,
+          },
+          (error, result) => {
+            if (error) {
+              reject(error);
+            } else {
+              resolve(result!);
+            }
+          }
+        );
+        uploadStream.end(songAudioBuffer);
+      });
 
       // ✅ Create & Save Song in DB
       const song = await SongModel.create({
@@ -123,7 +137,6 @@ export async function POST(req: NextRequest) {
         album: null, // Will be updated after album creation
       });
 
-      // console.log("✅ Song Created:", song);
       songIds.push(song._id.toString());
       index++;
     }
@@ -135,8 +148,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // console.log("✅ Songs to be linked with album:", songIds);
-
     // ** Create & Save Album in DB **
     const album = await AlbumModel.create({
       title,
@@ -145,8 +156,6 @@ export async function POST(req: NextRequest) {
       songs: songIds,
       releaseDate: new Date(),
     });
-
-    // console.log("✅ Album Created:", album);
 
     // ** Update Songs with Album Reference **
     await SongModel.updateMany({ _id: { $in: songIds } }, { album: album._id });
