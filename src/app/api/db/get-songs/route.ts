@@ -2,7 +2,7 @@ import connectDB from "@/db/connectDB";
 import SongModel from "@/modals/SongModal";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(request :  NextRequest) {
+export async function GET(request: NextRequest) {
   await connectDB();
 
   try {
@@ -14,13 +14,11 @@ export async function GET(request :  NextRequest) {
     // Calculate the number of documents to skip
     const skip = (page - 1) * limit;
 
-    // Fetch songs with pagination
+    // Fetch songs with pagination (without populating "album")
     const songs = await SongModel.find()
-      .populate("album")
       .skip(skip)
       .limit(limit);
 
-    // Get the total number of songs for pagination metadata
     const totalSongs = await SongModel.countDocuments();
 
     return NextResponse.json(

@@ -53,7 +53,7 @@ const SongCard: React.FC<SongCardProps> = ({
   // Handle adding/removing from favorites
   const handleFavorite = async () => {
     try {
-      const res = await axios.post(`/api/auth/fav/add-to-fav/${id}`, { id });
+      const res = await axios.post("/api/auth/favorites", { id });
 
       if (res.status === 200) {
         toast.success("Added to favorites!");

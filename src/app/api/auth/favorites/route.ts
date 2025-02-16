@@ -2,10 +2,11 @@ import connectDB from "@/db/connectDB";
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import UserModel from "@/modals/UserModal";
+import mongoose from "mongoose";
 
 export async function POST(req: NextRequest) {
   try {
-    await connectDB(); 
+    await connectDB();
 
     const token = req.cookies.get("token")?.value;
     if (!token) {
@@ -19,14 +20,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: "Song ID is required!" }, { status: 400 });
     }
 
+    // Validate songId
+    if (!mongoose.Types.ObjectId.isValid(songId)) {
+      return NextResponse.json({ message: "Invalid Song ID!" }, { status: 400 });
+    }
+
     const decodedToken = jwt.verify(token, process.env.SECRET_KEY as string) as {
       email: string;
-      username: string;
+      userId: string; // This corresponds to the user's _id in MongoDB
     };
+    console.log(decodedToken);
 
-    const username = decodedToken.username;
-
-    const user = await UserModel.findOne({ username });
+    const user = await UserModel.findById(decodedToken.userId);
 
     if (!user) {
       return NextResponse.json({ message: "User not found" }, { status: 404 });
@@ -34,15 +39,25 @@ export async function POST(req: NextRequest) {
 
     user.favorites = user.favorites || [];
 
-    if (!user.favorites.includes(songId)) {
+    const songIndex = user.favorites.indexOf(songId);
+
+    if (songIndex === -1) {
+      // Song is not in favorites, so add it
       user.favorites.push(songId);
-      await user.save();
-      return NextResponse.json({ message: "Added to favorites!" }, { status: 200 });
     } else {
-      return NextResponse.json({ message: "Song is already in favorites!" }, { status: 409 });
+      // Song is already in favorites, so remove it
+      user.favorites.splice(songIndex, 1);
     }
+
+
+    await user.save();
+
+    return NextResponse.json(
+      { message: songIndex === -1 ? "Added to favorites!" : "Removed from favorites!" },
+      { status: 200 }
+    );
   } catch (error) {
-    console.error("Error adding to favorites:", error);
+    console.error("Error updating favorites:", error);
 
     if (error instanceof jwt.JsonWebTokenError) {
       return NextResponse.json({ message: "Invalid token!" }, { status: 401 });

@@ -39,10 +39,13 @@ const Page = () => {
       <div className="p-6">
         <h1 className="text-2xl font-bold mb-6 pt-14">Album Songs</h1>
 
-        {loading ? (
-          Array.from({ length: 5 }).map((_, index) => (
+        { loading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {Array.from({ length: 5 }).map((_, index) => (
             <SongCardLoading key={index} />
-          ))
+            ))}
+          </div>
+        
         ) : error ? (
           <p className="text-spotify-red">{error}</p>
         ) : (
